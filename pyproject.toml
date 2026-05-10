@@ -1,0 +1,14 @@
+[project]
+name = "doccontext"
+version = "0.1.0"
+description = "A multi-tenant RAG service that indexes PDF/TXT/MD documents and answers prompts via a two-stage LLM flow."
+readme = "README.md"
+authors = [
+    { name = "Adem", email = "adem.akdogan03@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = []
+
+[build-system]
+requires = ["uv_build>=0.9.5,<0.10.0"]
+build-backend = "uv_build"

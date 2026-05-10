@@ -1,0 +1,5 @@
+# docker-compose.yml
+# Services (Qdrant, RabbitMQ, PostgreSQL) will be added in a later commit
+# alongside the config loader and connectivity smoke tests.
+
+services: {}
