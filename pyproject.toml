@@ -8,6 +8,9 @@ authors = [
 ]
 requires-python = ">=3.13"
 dependencies = [
+    "grpcio>=1.80.0",
+    "grpcio-tools>=1.80.0",
+    "protobuf>=6.33.6",
     "pydantic-settings>=2.5",
     "structlog>=24.1",
 ]
