@@ -1,5 +1,57 @@
-# docker-compose.yml
-# Services (Qdrant, RabbitMQ, PostgreSQL) will be added in a later commit
-# alongside the config loader and connectivity smoke tests.
+services:
+  qdrant:
+    image: qdrant/qdrant:v1.12.4
+    container_name: doccontext-qdrant
+    restart: unless-stopped
+    ports:
+      - "${QDRANT_PORT:-6333}:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/localhost/6333' || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
-services: {}
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: doccontext-rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-guest}
+      RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_VHOST:-/}
+    ports:
+      - "${RABBITMQ_PORT:-5672}:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: doccontext-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-doccontext}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-doccontext}
+      POSTGRES_DB: ${POSTGRES_DB:-doccontext}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-doccontext}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  qdrant_data:
+  rabbitmq_data:
+  postgres_data:
