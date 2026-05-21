@@ -12,6 +12,7 @@ dependencies = [
     "grpcio-tools>=1.80.0",
     "protobuf>=6.33.6",
     "pydantic-settings>=2.5",
+    "pypdf>=4.0",
     "structlog>=24.1",
 ]
 
