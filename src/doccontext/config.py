@@ -38,6 +38,7 @@ class Settings(BaseSettings):
 
     embedding_provider: str = "minilm"
     vector_store_provider: str = "qdrant"
+    queue_provider: str = "rabbitmq"
 
     chunk_size: int = 800
     chunk_overlap: int = 160
