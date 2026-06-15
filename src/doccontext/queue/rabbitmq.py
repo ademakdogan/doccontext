@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 from collections.abc import Mapping
 from typing import Any
 
@@ -8,6 +9,8 @@ import aio_pika
 
 from doccontext.config import Settings, get_settings
 from doccontext.queue.base import MessageHandler, QueueConsumer, QueuePublisher
+
+_logger = logging.getLogger(__name__)
 
 
 class _RabbitMQClient:
@@ -64,9 +67,17 @@ class RabbitMQConsumer(_RabbitMQClient, QueueConsumer):
         q = await channel.declare_queue(queue, durable=True)
         async with q.iterator() as it:
             async for message in it:
-                # process() acks on success, nacks on exception. We drop
-                # poison messages (requeue=False) so a failing job can't spin
-                # the worker forever; the job repo records FAILED instead.
-                async with message.process(requeue=False):
-                    payload = json.loads(message.body.decode("utf-8"))
-                    await handler(payload)
+                # process() acks on normal exit, nacks on exception. Poison
+                # messages are dropped (requeue=False) so a failing job cannot
+                # spin the worker forever; the job repo records FAILED.
+                # Handler exceptions are swallowed here so the consumer loop
+                # survives a single bad message.
+                try:
+                    async with message.process(requeue=False):
+                        payload = json.loads(message.body.decode("utf-8"))
+                        await handler(payload)
+                except Exception:
+                    _logger.exception(
+                        "queue handler raised; message dropped",
+                        extra={"queue": queue},
+                    )
