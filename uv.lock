@@ -210,6 +210,7 @@ source = { editable = "." }
 dependencies = [
     { name = "aio-pika" },
     { name = "asyncpg" },
+    { name = "greenlet" },
     { name = "grpcio" },
     { name = "grpcio-tools" },
     { name = "httpx" },
@@ -234,6 +235,7 @@ dev = [
 requires-dist = [
     { name = "aio-pika", specifier = ">=9.6.2" },
     { name = "asyncpg", specifier = ">=0.31.0" },
+    { name = "greenlet", specifier = ">=3.4.0" },
     { name = "grpcio", specifier = ">=1.80.0" },
     { name = "grpcio-tools", specifier = ">=1.80.0" },
     { name = "httpx", specifier = ">=0.28.1" },
