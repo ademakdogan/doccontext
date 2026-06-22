@@ -18,6 +18,7 @@ from doccontext.queue import get_queue_publisher
 from doccontext.repositories import JobRepository, bootstrap_schema, create_engine
 from doccontext.services.index_service import IndexDocumentHandler
 from doccontext.services.servicer import DocContextServicer
+from doccontext.services.status_service import GetIndexingJobStatusHandler
 
 
 async def serve() -> None:
@@ -34,6 +35,7 @@ async def serve() -> None:
         index=IndexDocumentHandler(
             repository=repo, publisher=publisher, settings=settings
         ),
+        status=GetIndexingJobStatusHandler(repository=repo),
     )
 
     server = grpc.aio.server()
