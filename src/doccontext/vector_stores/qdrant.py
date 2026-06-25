@@ -127,6 +127,59 @@ class QdrantVectorStore(VectorStore):
             )
         return out
 
+    def list_chunks_for_corpora(
+        self,
+        *,
+        client_id: str,
+        corpus_ids: Sequence[str],
+        limit: int = 10000,
+    ) -> list[RetrievedChunk]:
+        if not corpus_ids or limit <= 0:
+            return []
+        filt = qmodels.Filter(
+            must=[
+                qmodels.FieldCondition(
+                    key="client_id", match=qmodels.MatchValue(value=client_id)
+                ),
+                qmodels.FieldCondition(
+                    key="corpus_id", match=qmodels.MatchAny(any=list(corpus_ids))
+                ),
+            ]
+        )
+        out: list[RetrievedChunk] = []
+        next_offset: object | None = None
+        # Page size capped at 512 so a single overly-large limit doesn't demand
+        # one gigantic response from Qdrant.
+        page = min(limit, 512)
+        while len(out) < limit:
+            points, next_offset = self._client.scroll(
+                collection_name=self._collection,
+                scroll_filter=filt,
+                limit=min(page, limit - len(out)),
+                with_payload=True,
+                with_vectors=False,
+                offset=next_offset,
+            )
+            for point in points:
+                p = point.payload or {}
+                out.append(
+                    RetrievedChunk(
+                        chunk_id=str(p.get("chunk_id", point.id)),
+                        document_id=str(p.get("document_id", "")),
+                        corpus_id=str(p.get("corpus_id", "")),
+                        client_id=str(p.get("client_id", "")),
+                        chunk_index=int(p.get("chunk_index", 0)),
+                        char_start=int(p.get("char_start", 0)),
+                        char_end=int(p.get("char_end", 0)),
+                        text=str(p.get("text", "")),
+                        file_type=str(p.get("file_type", "")),
+                        score=0.0,
+                    )
+                )
+            if next_offset is None:
+                break
+        return out
+
     def delete_by_document(self, *, client_id: str, document_id: str) -> int:
         filt = qmodels.Filter(
             must=[

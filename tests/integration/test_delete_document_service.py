@@ -22,8 +22,10 @@ from doccontext.repositories.job import (
 )
 from doccontext.services.delete_service import DeleteDocumentHandler
 from doccontext.services.index_service import IndexDocumentHandler
+from doccontext.services.query_service import QueryDocumentsHandler
 from doccontext.services.servicer import DocContextServicer
 from doccontext.services.status_service import GetIndexingJobStatusHandler
+from tests.integration._fakes import FakeEmbedder, FakeLLMClient, FakeVectorStore
 
 pytestmark = pytest.mark.integration
 
@@ -91,6 +93,12 @@ async def grpc_channel(
         status=GetIndexingJobStatusHandler(repository=repo),
         delete=DeleteDocumentHandler(
             repository=repo, publisher=publisher, settings=settings
+        ),
+        query=QueryDocumentsHandler(
+            embedder=FakeEmbedder(),
+            vector_store=FakeVectorStore(),
+            llm=FakeLLMClient(),
+            settings=settings,
         ),
     )
     server = grpc.aio.server()

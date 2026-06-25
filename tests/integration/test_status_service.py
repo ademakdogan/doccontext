@@ -18,9 +18,12 @@ from doccontext.repositories.job import (
     bootstrap_schema,
     create_engine,
 )
+from doccontext.services.delete_service import DeleteDocumentHandler
 from doccontext.services.index_service import IndexDocumentHandler
+from doccontext.services.query_service import QueryDocumentsHandler
 from doccontext.services.servicer import DocContextServicer
 from doccontext.services.status_service import GetIndexingJobStatusHandler
+from tests.integration._fakes import FakeEmbedder, FakeLLMClient, FakeVectorStore
 
 pytestmark = pytest.mark.integration
 
@@ -65,11 +68,21 @@ class _NullPublisher:
 async def grpc_channel(
     settings: Settings, repo: JobRepository
 ) -> AsyncIterator[grpc.aio.Channel]:
+    null_pub = _NullPublisher()
     servicer = DocContextServicer(
         index=IndexDocumentHandler(
-            repository=repo, publisher=_NullPublisher(), settings=settings  # type: ignore[arg-type]
+            repository=repo, publisher=null_pub, settings=settings  # type: ignore[arg-type]
         ),
         status=GetIndexingJobStatusHandler(repository=repo),
+        delete=DeleteDocumentHandler(
+            repository=repo, publisher=null_pub, settings=settings  # type: ignore[arg-type]
+        ),
+        query=QueryDocumentsHandler(
+            embedder=FakeEmbedder(),
+            vector_store=FakeVectorStore(),
+            llm=FakeLLMClient(),
+            settings=settings,
+        ),
     )
     server = grpc.aio.server()
     pb_grpc.add_DocContextServicer_to_server(servicer, server)

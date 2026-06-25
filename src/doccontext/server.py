@@ -12,14 +12,18 @@ import signal
 import grpc
 
 from doccontext.config import get_settings
+from doccontext.embeddings.factory import get_embedder
+from doccontext.llm.openrouter import OpenRouterClient
 from doccontext.logging_config import LogChannel, configure_logging, get_logger
 from doccontext.proto_gen import doccontext_pb2_grpc as pb_grpc
 from doccontext.queue import get_queue_publisher
 from doccontext.repositories import JobRepository, bootstrap_schema, create_engine
 from doccontext.services.delete_service import DeleteDocumentHandler
 from doccontext.services.index_service import IndexDocumentHandler
+from doccontext.services.query_service import QueryDocumentsHandler
 from doccontext.services.servicer import DocContextServicer
 from doccontext.services.status_service import GetIndexingJobStatusHandler
+from doccontext.vector_stores.factory import get_vector_store
 
 
 async def serve() -> None:
@@ -31,6 +35,9 @@ async def serve() -> None:
     await bootstrap_schema(engine)
     repo = JobRepository(engine)
     publisher = get_queue_publisher(settings)
+    embedder = get_embedder(settings)
+    vector_store = get_vector_store(settings)
+    llm = OpenRouterClient(settings)
 
     servicer = DocContextServicer(
         index=IndexDocumentHandler(
@@ -39,6 +46,12 @@ async def serve() -> None:
         status=GetIndexingJobStatusHandler(repository=repo),
         delete=DeleteDocumentHandler(
             repository=repo, publisher=publisher, settings=settings
+        ),
+        query=QueryDocumentsHandler(
+            embedder=embedder,
+            vector_store=vector_store,
+            llm=llm,
+            settings=settings,
         ),
     )
 
@@ -59,6 +72,7 @@ async def serve() -> None:
     log.info("server stopping")
     await server.stop(grace=5.0)
     await publisher.close()
+    await llm.aclose()
     await engine.dispose()
 
 

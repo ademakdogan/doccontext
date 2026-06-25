@@ -35,3 +35,18 @@ class VectorStore(ABC):
     @abstractmethod
     def delete_by_document(self, *, client_id: str, document_id: str) -> int:
         """Delete every chunk belonging to a document. Returns deleted count."""
+
+    @abstractmethod
+    def list_chunks_for_corpora(
+        self,
+        *,
+        client_id: str,
+        corpus_ids: Sequence[str],
+        limit: int = 10000,
+    ) -> list[RetrievedChunk]:
+        """Return every chunk matching (client_id, corpus_ids) up to ``limit``.
+
+        Used by the FULL_DOC branch of QueryDocuments to reconstruct full
+        document text from its stored chunks. Score is reported as 0.0 since
+        these are unscored scans.
+        """
