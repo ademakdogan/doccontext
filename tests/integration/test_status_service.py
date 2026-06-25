@@ -18,12 +18,18 @@ from doccontext.repositories.job import (
     bootstrap_schema,
     create_engine,
 )
+<<<<<<< HEAD
 from doccontext.services.delete_service import DeleteDocumentHandler
 from doccontext.services.index_service import IndexDocumentHandler
 from doccontext.services.query_service import QueryDocumentsHandler
 from doccontext.services.servicer import DocContextServicer
 from doccontext.services.status_service import GetIndexingJobStatusHandler
 from tests.integration._fakes import FakeEmbedder, FakeLLMClient, FakeVectorStore
+=======
+from doccontext.services.index_service import IndexDocumentHandler
+from doccontext.services.servicer import DocContextServicer
+from doccontext.services.status_service import GetIndexingJobStatusHandler
+>>>>>>> e4497c5 (test(services): GetIndexingJobStatus happy paths + not-found + validation)
 
 pytestmark = pytest.mark.integration
 
@@ -68,6 +74,7 @@ class _NullPublisher:
 async def grpc_channel(
     settings: Settings, repo: JobRepository
 ) -> AsyncIterator[grpc.aio.Channel]:
+<<<<<<< HEAD
     null_pub = _NullPublisher()
     servicer = DocContextServicer(
         index=IndexDocumentHandler(
@@ -83,6 +90,13 @@ async def grpc_channel(
             llm=FakeLLMClient(),
             settings=settings,
         ),
+=======
+    servicer = DocContextServicer(
+        index=IndexDocumentHandler(
+            repository=repo, publisher=_NullPublisher(), settings=settings  # type: ignore[arg-type]
+        ),
+        status=GetIndexingJobStatusHandler(repository=repo),
+>>>>>>> e4497c5 (test(services): GetIndexingJobStatus happy paths + not-found + validation)
     )
     server = grpc.aio.server()
     pb_grpc.add_DocContextServicer_to_server(servicer, server)
