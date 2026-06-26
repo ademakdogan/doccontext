@@ -19,6 +19,7 @@ from doccontext.repositories.job import (
     create_engine,
 )
 <<<<<<< HEAD
+<<<<<<< HEAD
 from doccontext.services.delete_service import DeleteDocumentHandler
 from doccontext.services.index_service import IndexDocumentHandler
 from doccontext.services.query_service import QueryDocumentsHandler
@@ -26,10 +27,18 @@ from doccontext.services.servicer import DocContextServicer
 from doccontext.services.status_service import GetIndexingJobStatusHandler
 from tests.integration._fakes import FakeEmbedder, FakeLLMClient, FakeVectorStore
 =======
+=======
+from doccontext.services.delete_service import DeleteDocumentHandler
+>>>>>>> 6c2890d (feat(services): QueryDocuments gRPC handler (two-stage LLM + semaphore))
 from doccontext.services.index_service import IndexDocumentHandler
+from doccontext.services.query_service import QueryDocumentsHandler
 from doccontext.services.servicer import DocContextServicer
 from doccontext.services.status_service import GetIndexingJobStatusHandler
+<<<<<<< HEAD
 >>>>>>> e4497c5 (test(services): GetIndexingJobStatus happy paths + not-found + validation)
+=======
+from tests.integration._fakes import FakeEmbedder, FakeLLMClient, FakeVectorStore
+>>>>>>> 6c2890d (feat(services): QueryDocuments gRPC handler (two-stage LLM + semaphore))
 
 pytestmark = pytest.mark.integration
 
@@ -75,6 +84,7 @@ async def grpc_channel(
     settings: Settings, repo: JobRepository
 ) -> AsyncIterator[grpc.aio.Channel]:
 <<<<<<< HEAD
+<<<<<<< HEAD
     null_pub = _NullPublisher()
     servicer = DocContextServicer(
         index=IndexDocumentHandler(
@@ -91,12 +101,27 @@ async def grpc_channel(
             settings=settings,
         ),
 =======
+=======
+    null_pub = _NullPublisher()
+>>>>>>> 6c2890d (feat(services): QueryDocuments gRPC handler (two-stage LLM + semaphore))
     servicer = DocContextServicer(
         index=IndexDocumentHandler(
-            repository=repo, publisher=_NullPublisher(), settings=settings  # type: ignore[arg-type]
+            repository=repo, publisher=null_pub, settings=settings  # type: ignore[arg-type]
         ),
         status=GetIndexingJobStatusHandler(repository=repo),
+<<<<<<< HEAD
 >>>>>>> e4497c5 (test(services): GetIndexingJobStatus happy paths + not-found + validation)
+=======
+        delete=DeleteDocumentHandler(
+            repository=repo, publisher=null_pub, settings=settings  # type: ignore[arg-type]
+        ),
+        query=QueryDocumentsHandler(
+            embedder=FakeEmbedder(),
+            vector_store=FakeVectorStore(),
+            llm=FakeLLMClient(),
+            settings=settings,
+        ),
+>>>>>>> 6c2890d (feat(services): QueryDocuments gRPC handler (two-stage LLM + semaphore))
     )
     server = grpc.aio.server()
     pb_grpc.add_DocContextServicer_to_server(servicer, server)

@@ -23,14 +23,20 @@ from doccontext.repositories.job import (
 from doccontext.services.delete_service import DeleteDocumentHandler
 from doccontext.services.index_service import IndexDocumentHandler
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 6c2890d (feat(services): QueryDocuments gRPC handler (two-stage LLM + semaphore))
 from doccontext.services.query_service import QueryDocumentsHandler
 from doccontext.services.servicer import DocContextServicer
 from doccontext.services.status_service import GetIndexingJobStatusHandler
 from tests.integration._fakes import FakeEmbedder, FakeLLMClient, FakeVectorStore
+<<<<<<< HEAD
 =======
 from doccontext.services.servicer import DocContextServicer
 from doccontext.services.status_service import GetIndexingJobStatusHandler
 >>>>>>> 5831559 (test(services): DeleteDocument happy path + validation)
+=======
+>>>>>>> 6c2890d (feat(services): QueryDocuments gRPC handler (two-stage LLM + semaphore))
 
 pytestmark = pytest.mark.integration
 
@@ -100,14 +106,20 @@ async def grpc_channel(
             repository=repo, publisher=publisher, settings=settings
         ),
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 6c2890d (feat(services): QueryDocuments gRPC handler (two-stage LLM + semaphore))
         query=QueryDocumentsHandler(
             embedder=FakeEmbedder(),
             vector_store=FakeVectorStore(),
             llm=FakeLLMClient(),
             settings=settings,
         ),
+<<<<<<< HEAD
 =======
 >>>>>>> 5831559 (test(services): DeleteDocument happy path + validation)
+=======
+>>>>>>> 6c2890d (feat(services): QueryDocuments gRPC handler (two-stage LLM + semaphore))
     )
     server = grpc.aio.server()
     pb_grpc.add_DocContextServicer_to_server(servicer, server)
