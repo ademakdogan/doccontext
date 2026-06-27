@@ -47,21 +47,12 @@ async def serve() -> None:
         delete=DeleteDocumentHandler(
             repository=repo, publisher=publisher, settings=settings
         ),
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 6c2890d (feat(services): QueryDocuments gRPC handler (two-stage LLM + semaphore))
         query=QueryDocumentsHandler(
             embedder=embedder,
             vector_store=vector_store,
             llm=llm,
             settings=settings,
         ),
-<<<<<<< HEAD
-=======
->>>>>>> 67d3ecb (feat(services): DeleteDocument gRPC handler)
-=======
->>>>>>> 6c2890d (feat(services): QueryDocuments gRPC handler (two-stage LLM + semaphore))
     )
 
     server = grpc.aio.server()
